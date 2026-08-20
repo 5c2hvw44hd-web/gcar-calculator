@@ -10,7 +10,6 @@
   :root{
     --accent:#DA291C;
     --accent-soft:rgba(218,41,28,0.35);
-    --navy:#0d1a2e;
     --glass:rgba(255,255,255,0.07);
     --glass-strong:rgba(255,255,255,0.11);
     --glass-border:rgba(255,255,255,0.16);
@@ -34,20 +33,24 @@
       linear-gradient(165deg, #060b14 0%, #0c1729 45%, #0a1120 100%);
     background-attachment:fixed;
   }
-  .wrap{
-    max-width:720px;
-    margin:0 auto;
-  }
+  .wrap{ max-width:480px; margin:0 auto; }
   .back-link{
     display:inline-flex;
     align-items:center;
     gap:6px;
-    font-size:12px;
-    color:var(--text-secondary);
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
     text-decoration:none;
-    margin-bottom:16px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid var(--glass-border);
+    margin-bottom:18px;
   }
-  .back-link:hover{ color:var(--text); }
+  .back-link:hover{ background:rgba(255,255,255,0.14); }
+  .back-link svg{ width:15px; height:15px; }
+
   .header-row{
     display:flex;
     justify-content:space-between;
@@ -56,14 +59,12 @@
     margin-bottom:8px;
   }
   h1{
-    font-size:22px;
+    font-size:20px;
     font-weight:700;
     letter-spacing:-0.01em;
     margin:0;
-    background:linear-gradient(135deg, #ffffff, rgba(255,255,255,0.75));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+    display:flex;
+    align-items:center;
   }
   h1 .dot{
     display:inline-block;
@@ -72,7 +73,6 @@
     background:var(--accent);
     box-shadow:0 0 12px 2px var(--accent-soft);
     margin-right:8px;
-    vertical-align:middle;
   }
   .version-badge{
     font-size:11px;
@@ -82,38 +82,71 @@
     white-space:nowrap;
     padding-top:3px;
   }
-  .note{
-    font-size:11.5px;
-    color:var(--text-muted);
-    margin:0 0 20px;
-  }
-  .card{
-    position:relative;
-    background:linear-gradient(160deg, var(--glass-strong), var(--glass));
-    -webkit-backdrop-filter:blur(28px) saturate(180%);
-    backdrop-filter:blur(28px) saturate(180%);
+  .note{ font-size:11.5px; color:var(--text-muted); margin:0 0 20px; }
+
+  .step-box{
     border:1px solid var(--glass-border);
-    border-radius:26px;
-    padding:22px;
-    margin-bottom:18px;
-    box-shadow:
-      0 20px 50px rgba(0,0,0,0.45),
-      inset 0 1px 0 rgba(255,255,255,0.22),
-      inset 0 0 0 1px rgba(255,255,255,0.03);
+    border-radius:16px;
+    padding:13px 16px;
+    margin-bottom:10px;
+    transition:padding .2s ease, border-color .2s ease;
   }
-  .field{
-    margin-bottom:14px;
+  .step-box.active{
+    border:1.5px solid var(--accent);
+    padding:18px;
+    background:linear-gradient(160deg, var(--glass-strong), var(--glass));
+    -webkit-backdrop-filter:blur(20px);
+    backdrop-filter:blur(20px);
   }
-  .field:last-child{margin-bottom:0;}
-  label{
-    display:block;
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.02em;
+  .step-header{ display:flex; align-items:center; justify-content:space-between; }
+  .step-header-left{ display:flex; align-items:center; gap:8px; }
+  .step-check{ display:none; width:16px; height:16px; color:var(--accent); flex-shrink:0; }
+  .step-box.collapsed .step-check{ display:inline-flex; }
+  .step-label{ font-size:12px; color:var(--text-muted); }
+  .step-value{ font-size:13.5px; font-weight:600; color:var(--text); }
+  .step-edit{ display:none; font-size:11.5px; font-weight:600; color:var(--accent); cursor:pointer; flex-shrink:0; }
+  .step-box.collapsed .step-edit{ display:inline; }
+  .step-box.collapsed .step-body{ display:none; }
+  .step-box:not(.collapsed) .step-header .step-value{ display:none; }
+  .step-title{ font-size:12px; font-weight:600; letter-spacing:0.02em; color:var(--text-secondary); margin:2px 0 10px; }
+
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:7px; }
+  .chip{
+    padding:7px 13px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--glass-border);
     color:var(--text-secondary);
-    margin-bottom:7px;
+    font-size:12.5px;
+    cursor:pointer;
+    user-select:none;
   }
-  select, input[type="number"]{
+  .chip:hover{ border-color:var(--glass-border-strong); }
+  .btn-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .veh-btn{
+    padding:12px 10px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--glass-border);
+    color:var(--text-secondary);
+    font-size:12.5px;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    line-height:1.35;
+  }
+  .veh-btn:hover{ border-color:var(--glass-border-strong); }
+  .veh-btn .rate{ display:block; font-size:11px; color:var(--text-muted); margin-top:3px; }
+  .chip.selected, .veh-btn.selected{
+    background:linear-gradient(135deg, rgba(218,41,28,0.95), rgba(150,20,15,0.9));
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 8px 18px rgba(218,41,28,0.35);
+  }
+  .chip.selected *, .veh-btn.selected .rate{ color:#fff; }
+
+  label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px; }
+  input[type="number"]{
     width:100%;
     height:44px;
     padding:0 14px;
@@ -122,22 +155,9 @@
     font-size:15px;
     background:rgba(255,255,255,0.06);
     color:var(--text);
-    -webkit-backdrop-filter:blur(10px);
-    backdrop-filter:blur(10px);
+    margin-bottom:14px;
   }
-  select option{
-    color:#111;
-  }
-  select:focus, input:focus{
-    outline:none;
-    border-color:var(--accent);
-    box-shadow:0 0 0 3px var(--accent-soft);
-  }
-  .row{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-  }
+  input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
   button{
     width:100%;
     height:46px;
@@ -147,184 +167,152 @@
     color:#fff;
     font-size:15px;
     font-weight:700;
-    letter-spacing:0.01em;
     cursor:pointer;
-    margin-top:6px;
-    box-shadow:
-      0 12px 28px rgba(218,41,28,0.4),
-      inset 0 1px 0 rgba(255,255,255,0.4);
-    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 12px 28px rgba(218,41,28,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  button:hover{ box-shadow:0 14px 32px rgba(218,41,28,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
   button:active{ transform:scale(0.98); }
 
-  .compare-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-    margin-bottom:20px;
-  }
-  .compare-box{
+  .result-wrap.hidden{ display:none; }
+  .card{
+    position:relative;
     background:linear-gradient(160deg, var(--glass-strong), var(--glass));
-    -webkit-backdrop-filter:blur(20px);
-    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(24px);
+    backdrop-filter:blur(24px);
     border:1px solid var(--glass-border);
     border-radius:20px;
-    padding:18px 12px;
+    padding:18px;
+    margin-top:16px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .compare-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .compare-box{
+    background:linear-gradient(160deg, var(--glass-strong), var(--glass));
+    border:1px solid var(--glass-border);
+    border-radius:18px;
+    padding:16px 12px;
     text-align:center;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
-    transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
-  .compare-box .label{
-    font-size:12.5px;
-    color:var(--text-secondary);
-    margin-bottom:8px;
-  }
-  .compare-box .value{
-    font-size:25px;
-    font-weight:700;
-    color:var(--text);
-  }
+  .compare-box .label{ font-size:12px; color:var(--text-secondary); margin-bottom:8px; }
+  .compare-box .value{ font-size:23px; font-weight:700; color:var(--text); }
   .compare-box.highlight{
     background:linear-gradient(160deg, rgba(218,41,28,0.85), rgba(150,20,15,0.75));
     border-color:rgba(255,255,255,0.4);
-    box-shadow:
-      0 12px 30px rgba(218,41,28,0.45),
-      inset 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow:0 12px 30px rgba(218,41,28,0.45), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .compare-box.highlight .label,
-  .compare-box.highlight .value{
-    color:#fff;
-  }
+  .compare-box.highlight .label, .compare-box.highlight .value{ color:#fff; }
 
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:10px;
-    margin-bottom:20px;
-  }
+  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:20px; }
   .pct-card{
     background:linear-gradient(160deg, var(--glass-strong), var(--glass));
-    -webkit-backdrop-filter:blur(18px);
-    backdrop-filter:blur(18px);
     border:1px solid var(--glass-border);
     border-radius:16px;
     padding:12px 8px;
     text-align:center;
     box-shadow:inset 0 1px 0 rgba(255,255,255,0.16);
-    transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
-  .pct-card .pct{
-    font-size:12px;
-    color:var(--text-secondary);
-    font-weight:600;
-    margin-bottom:5px;
-  }
-  .pct-card .amt{
-    font-size:15px;
-    font-weight:700;
-    color:var(--text);
-  }
+  .pct-card .pct{ font-size:12px; color:var(--text-secondary); font-weight:600; margin-bottom:5px; }
+  .pct-card .amt{ font-size:15px; font-weight:700; color:var(--text); }
   .pct-card.highlight{
     background:linear-gradient(160deg, rgba(218,41,28,0.85), rgba(150,20,15,0.75));
     border-color:rgba(255,255,255,0.4);
-    box-shadow:
-      0 10px 24px rgba(218,41,28,0.4),
-      inset 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow:0 10px 24px rgba(218,41,28,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .pct-card.highlight .pct,
-  .pct-card.highlight .amt{
-    color:#fff;
-  }
+  .pct-card.highlight .pct, .pct-card.highlight .amt{ color:#fff; }
 
-  .tier-title{
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:0.02em;
-    color:var(--text-secondary);
-    margin-bottom:9px;
-  }
+  .tier-title{ font-size:12px; font-weight:600; letter-spacing:0.02em; color:var(--text-secondary); margin-bottom:9px; }
   .tier-table{
     background:var(--glass);
-    -webkit-backdrop-filter:blur(18px);
-    backdrop-filter:blur(18px);
     border:1px solid var(--glass-border);
     border-radius:18px;
     overflow:hidden;
     font-size:13px;
   }
-  .tier-row{
-    display:grid;
-    grid-template-columns:1.1fr 1fr 0.8fr 1.1fr;
-    padding:10px 14px;
-  }
-  .tier-row + .tier-row{
-    border-top:1px solid rgba(255,255,255,0.10);
-  }
-  .tier-row.head{
-    background:rgba(255,255,255,0.05);
-    color:var(--text-secondary);
-    font-weight:600;
-    font-size:11.5px;
-    letter-spacing:0.02em;
-  }
-  .tier-row span:not(:first-child){
-    text-align:right;
-  }
-  .tier-row.zero{
-    color:var(--text-muted);
-  }
+  .tier-row{ display:grid; grid-template-columns:1.1fr 1fr 0.8fr 1.1fr; padding:10px 14px; }
+  .tier-row + .tier-row{ border-top:1px solid rgba(255,255,255,0.10); }
+  .tier-row.head{ background:rgba(255,255,255,0.05); color:var(--text-secondary); font-weight:600; font-size:11.5px; letter-spacing:0.02em; }
+  .tier-row span:not(:first-child){ text-align:right; }
+  .tier-row.zero{ color:var(--text-muted); }
   @media (max-width:480px){
     .grid{ grid-template-columns:repeat(2, 1fr); }
     .tier-row{ font-size:12px; }
-    .compare-box .value{ font-size:20px; }
+    .compare-box .value{ font-size:19px; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <a class="back-link" href="index.html">&larr; 업체 선택으로</a>
+  <a class="back-link" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    업체 선택으로
+  </a>
   <div class="header-row">
     <h1><span class="dot"></span>G CAR 주행요금 및 포인트 계산</h1>
-    <div class="version-badge">v1.0<br>2026.08.09</div>
+    <div class="version-badge">v2.0<br>2026.08.21</div>
   </div>
   <p class="note">*31-100km 구간은 적게는 10원 크게는 20원까지 차이날 수 있음</p>
 
-  <div class="card">
-    <div class="row">
-      <div class="field">
-        <label for="vehicle">차종명</label>
-        <select id="vehicle"></select>
+  <div class="step-box active" id="step1Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <svg class="step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="step-label">1. 사용연료</span>
+        <span class="step-value" id="step1Value"></span>
       </div>
-      <div class="field">
-        <label for="fuel">사용연료</label>
-        <select id="fuel"></select>
-      </div>
+      <span class="step-edit" id="step1Edit">변경</span>
     </div>
-    <div class="field">
-      <label for="distance">실제 주행거리 (km)</label>
-      <input type="number" id="distance" min="0" step="1" value="500">
+    <div class="step-body">
+      <div class="step-title">사용연료를 선택하세요</div>
+      <div class="chip-grid" id="fuelGrid"></div>
     </div>
-    <button id="calcBtn">계산하기</button>
   </div>
 
-  <div class="card">
-    <div class="compare-grid">
-      <div class="compare-box" id="prevBox">
-        <div class="label">리뉴얼 이전 포인트</div>
-        <div class="value" id="prevPoint">0 P</div>
+  <div class="step-box" id="step2Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <svg class="step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="step-label">2. 차종명</span>
+        <span class="step-value" id="step2Value"></span>
       </div>
-      <div class="compare-box">
-        <div class="label">총 주행 요금</div>
-        <div class="value" id="totalFee">₩0</div>
+      <span class="step-edit" id="step2Edit">변경</span>
+    </div>
+    <div class="step-body">
+      <div class="step-title">차종을 선택하세요</div>
+      <div class="btn-grid" id="vehicleGrid"></div>
+    </div>
+  </div>
+
+  <div class="step-box" id="step3Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <span class="step-label" id="step3Label">3. 실제 주행거리 (km)</span>
       </div>
     </div>
+    <div class="step-body">
+      <input type="number" id="distance" min="0" step="1" placeholder="주행거리를 입력하세요 (km)" value="0">
+      <button id="calcBtn">계산하기</button>
+    </div>
+  </div>
 
-    <div class="tier-title">Membership 별 포인트 (더 유리한 쪽이 강조됩니다)</div>
-    <div class="grid" id="pctGrid"></div>
+  <div class="result-wrap hidden" id="resultWrap">
+    <div class="card">
+      <div class="compare-grid">
+        <div class="compare-box" id="prevBox">
+          <div class="label">리뉴얼 이전 포인트</div>
+          <div class="value" id="prevPoint">0 P</div>
+        </div>
+        <div class="compare-box">
+          <div class="label">총 주행 요금</div>
+          <div class="value" id="totalFee">₩0</div>
+        </div>
+      </div>
 
-    <div class="tier-title">구간별 요율 상세</div>
-    <div class="tier-table" id="tierTable"></div>
+      <div class="tier-title">Membership 별 포인트 (더 유리한 쪽이 강조됩니다)</div>
+      <div class="grid" id="pctGrid"></div>
+
+      <div class="tier-title">구간별 요율 상세</div>
+      <div class="tier-table" id="tierTable"></div>
+    </div>
   </div>
 </div>
 
@@ -369,43 +357,89 @@ const fuelLabels = { G:"G · 가솔린", EV:"EV · 전기", H:"H · 하이브리
 const pctList = [15,12,10,8,6,4];
 const gradeLabels = { 15:"G7 VVIP", 12:"G6 VIP", 10:"G5", 8:"G4", 6:"G3", 4:"G2" };
 const PREV_RATE = 40;
+const fuels = [...new Set(vehicles.map(v => v.fuel))];
 
-const vehicleSel = document.getElementById('vehicle');
-const fuelSel = document.getElementById('fuel');
+let state = { fuel:null, vehicleName:null, step:1 };
+
+const step1Box = document.getElementById('step1Box');
+const step2Box = document.getElementById('step2Box');
+const step3Box = document.getElementById('step3Box');
+const step1Value = document.getElementById('step1Value');
+const step2Value = document.getElementById('step2Value');
+const fuelGrid = document.getElementById('fuelGrid');
+const vehicleGrid = document.getElementById('vehicleGrid');
 const distanceInput = document.getElementById('distance');
+const resultWrap = document.getElementById('resultWrap');
 const totalFeeEl = document.getElementById('totalFee');
 const prevPointEl = document.getElementById('prevPoint');
 const prevBoxEl = document.getElementById('prevBox');
 const pctGrid = document.getElementById('pctGrid');
 const tierTable = document.getElementById('tierTable');
 
-function initFuelOptions(){
-  fuelSel.innerHTML = '<option value="ALL">전체</option>' +
-    Object.keys(fuelLabels).map(f => `<option value="${f}">${fuelLabels[f]}</option>`).join('');
-}
-
-function initVehicleOptions(){
-  const fuel = fuelSel.value;
-  const list = fuel === 'ALL' ? vehicles : vehicles.filter(v => v.fuel === fuel);
-  vehicleSel.innerHTML = list.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
-}
-
-function getSelectedVehicle(){
-  return vehicles.find(v => v.name === vehicleSel.value);
-}
-
 function calcFee(distance, r1, r2, r3){
   if(distance <= 30) return distance * r1;
   if(distance <= 100) return 30*r1 + (distance-30) * r2;
   return 30*r1 + 70*r2 + (distance-100) * r3;
 }
+function pt(n){ return Math.round(n).toLocaleString('ko-KR') + ' P'; }
+function won(n){ return '₩' + Math.round(n).toLocaleString('ko-KR'); }
 
-function pt(n){
-  return Math.round(n).toLocaleString('ko-KR') + ' P';
+function renderFuelGrid(){
+  fuelGrid.innerHTML = fuels.map(f => `
+    <div class="chip${state.fuel===f ? ' selected':''}" data-fuel="${f}">${fuelLabels[f]}</div>
+  `).join('');
+  fuelGrid.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', () => {
+      state.fuel = el.dataset.fuel;
+      state.vehicleName = null;
+      state.step = 2;
+      updateUI();
+    });
+  });
 }
 
-function won(n){
-  return '₩' + Math.round(n).toLocaleString('ko-KR');
+function renderVehicleGrid(){
+  const list = vehicles.filter(v => v.fuel === state.fuel);
+  vehicleGrid.innerHTML = list.map(v => `
+    <div class="veh-btn${state.vehicleName===v.name ? ' selected':''}" data-name="${v.name}">
+      ${v.name}
+      <span class="rate">${v.r1.toLocaleString('ko-KR')}원~/km</span>
+    </div>
+  `).join('');
+  vehicleGrid.querySelectorAll('.veh-btn').forEach(el => {
+    el.addEventListener('click', () => {
+      state.vehicleName = el.dataset.name;
+      state.step = 3;
+      updateUI();
+      render();
+    });
+  });
+}
+
+function updateUI(){
+  step1Value.textContent = state.fuel ? fuelLabels[state.fuel] : '';
+  step2Value.textContent = state.vehicleName || '';
+
+  step1Box.classList.toggle('active', state.step === 1);
+  step1Box.classList.toggle('collapsed', state.step !== 1 && !!state.fuel);
+
+  step2Box.classList.toggle('active', state.step === 2);
+  step2Box.classList.toggle('collapsed', state.step === 3 && !!state.vehicleName);
+  step2Box.style.display = state.fuel ? '' : 'none';
+
+  step3Box.classList.toggle('active', state.step === 3);
+  step3Box.style.display = state.vehicleName ? '' : 'none';
+
+  if(state.fuel) renderVehicleGrid();
+
+  resultWrap.classList.toggle('hidden', !state.vehicleName);
+}
+
+document.getElementById('step1Edit').addEventListener('click', () => { state.step = 1; updateUI(); });
+document.getElementById('step2Edit').addEventListener('click', () => { state.step = 2; updateUI(); });
+
+function getSelectedVehicle(){
+  return vehicles.find(v => v.name === state.vehicleName);
 }
 
 function render(){
@@ -454,14 +488,11 @@ function render(){
   `;
 }
 
-fuelSel.addEventListener('change', () => { initVehicleOptions(); render(); });
-vehicleSel.addEventListener('change', render);
 distanceInput.addEventListener('input', render);
 document.getElementById('calcBtn').addEventListener('click', render);
 
-initFuelOptions();
-initVehicleOptions();
-render();
+renderFuelGrid();
+updateUI();
 </script>
 </body>
 </html>
