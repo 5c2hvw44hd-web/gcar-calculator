@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a1120">
+<title>Turu Car 주행요금 계산</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.3.9/dist/web/static/pretendard.css" />
+<style>
+  :root{
+    --accent:#FF8F0F;
+    --accent-soft:rgba(255,143,15,0.35);
+    --glass:rgba(255,255,255,0.07);
+    --glass-strong:rgba(255,255,255,0.11);
+    --glass-border:rgba(255,255,255,0.16);
+    --glass-border-strong:rgba(255,255,255,0.32);
+    --text:#f5f7fb;
+    --text-secondary:rgba(245,247,251,0.62);
+    --text-muted:rgba(245,247,251,0.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Malgun Gothic",sans-serif;
+    color:var(--text);
+    padding:40px 16px 60px;
+    min-height:100vh;
+    background:
+      radial-gradient(900px circle at 10% -10%, rgba(255,143,15,0.32), transparent 58%),
+      radial-gradient(760px circle at 105% 0%, rgba(34,74,140,0.4), transparent 55%),
+      linear-gradient(165deg, #060b14 0%, #0c1729 45%, #0a1120 100%);
+    background-attachment:fixed;
+  }
+  .wrap{ max-width:480px; margin:0 auto; }
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid var(--glass-border);
+    margin-bottom:18px;
+  }
+  .back-link:hover{ background:rgba(255,255,255,0.14); }
+  .back-link svg{ width:15px; height:15px; }
+  h1{
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    margin:0 0 4px;
+    display:flex;
+    align-items:center;
+  }
+  h1 .dot{
+    display:inline-block;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 12px 2px var(--accent-soft);
+    margin-right:8px;
+  }
+  .sub{ font-size:11.5px; color:var(--text-muted); margin:0 0 20px; }
+
+  .step-box{
+    border:1px solid var(--glass-border);
+    border-radius:16px;
+    padding:13px 16px;
+    margin-bottom:10px;
+    transition:padding .2s ease, border-color .2s ease;
+  }
+  .step-box.active{
+    border:1.5px solid var(--accent);
+    padding:18px;
+    background:linear-gradient(160deg, var(--glass-strong), var(--glass));
+    -webkit-backdrop-filter:blur(20px);
+    backdrop-filter:blur(20px);
+  }
+  .step-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .step-header-left{ display:flex; align-items:center; gap:8px; }
+  .step-check{
+    display:none;
+    width:16px; height:16px;
+    color:var(--accent);
+    flex-shrink:0;
+  }
+  .step-box.collapsed .step-check{ display:inline-flex; }
+  .step-label{ font-size:12px; color:var(--text-muted); }
+  .step-value{ font-size:13.5px; font-weight:600; color:var(--text); }
+  .step-edit{
+    display:none;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--accent);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .step-box.collapsed .step-edit{ display:inline; }
+  .step-box.collapsed .step-body{ display:none; }
+  .step-box:not(.collapsed) .step-header .step-value{ display:none; }
+  .step-title{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--text-secondary);
+    margin:2px 0 10px;
+  }
+  .chip-grid{ display:flex; flex-wrap:wrap; gap:7px; }
+  .chip{
+    padding:7px 13px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--glass-border);
+    color:var(--text-secondary);
+    font-size:12.5px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip:hover{ border-color:var(--glass-border-strong); }
+  .btn-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .veh-btn{
+    padding:12px 10px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--glass-border);
+    color:var(--text-secondary);
+    font-size:12.5px;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    line-height:1.35;
+  }
+  .veh-btn:hover{ border-color:var(--glass-border-strong); }
+  .chip.selected, .veh-btn.selected{
+    background:linear-gradient(135deg, rgba(255,143,15,0.95), rgba(196,102,5,0.9));
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 8px 18px rgba(255,143,15,0.35);
+  }
+  .chip.selected *, .veh-btn.selected *{ color:#fff; }
+
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-secondary);
+    margin-bottom:8px;
+  }
+  input[type="number"]{
+    width:100%;
+    height:44px;
+    padding:0 14px;
+    border:1px solid var(--glass-border);
+    border-radius:14px;
+    font-size:15px;
+    background:rgba(255,255,255,0.06);
+    color:var(--text);
+    margin-bottom:14px;
+  }
+  input:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  button{
+    width:100%;
+    height:46px;
+    border:1px solid var(--glass-border-strong);
+    border-radius:999px;
+    background:linear-gradient(135deg, rgba(255,143,15,0.95), rgba(196,102,5,0.92));
+    color:#fff;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 12px 28px rgba(255,143,15,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  button:active{ transform:scale(0.98); }
+
+  .result-card{
+    position:relative;
+    background:linear-gradient(160deg, var(--glass-strong), var(--glass));
+    -webkit-backdrop-filter:blur(24px);
+    backdrop-filter:blur(24px);
+    border:1px solid var(--glass-border);
+    border-radius:20px;
+    padding:18px;
+    margin-top:16px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .info-table{ width:100%; font-size:13px; border-collapse:collapse; }
+  .info-table td{ padding:5px 0; color:var(--text-secondary); }
+  .info-table td:last-child{ text-align:right; color:var(--text); font-weight:600; }
+  .tier-note{
+    font-size:11.5px;
+    color:var(--text-muted);
+    margin-top:8px;
+  }
+  .total-block{
+    border-top:1px solid rgba(255,255,255,0.1);
+    margin-top:10px;
+    padding-top:14px;
+    text-align:center;
+  }
+  .total-block .label{ font-size:12px; color:var(--text-secondary); margin-bottom:4px; }
+  .total-block .value{ font-size:27px; font-weight:700; color:var(--text); }
+  .hidden{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    업체 선택으로
+  </a>
+  <h1><span class="dot"></span>Turu Car 주행요금 계산</h1>
+  <p class="sub">구간별(1-50km / 51-100km / 101km~) 요금이 달라요</p>
+
+  <div class="step-box active" id="step1Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <svg class="step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="step-label">1. 분류</span>
+        <span class="step-value" id="step1Value"></span>
+      </div>
+      <span class="step-edit" id="step1Edit">변경</span>
+    </div>
+    <div class="step-body">
+      <div class="step-title">차량 분류를 선택하세요</div>
+      <div class="chip-grid" id="categoryGrid"></div>
+    </div>
+  </div>
+
+  <div class="step-box" id="step2Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <svg class="step-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="step-label">2. 차종</span>
+        <span class="step-value" id="step2Value"></span>
+      </div>
+      <span class="step-edit" id="step2Edit">변경</span>
+    </div>
+    <div class="step-body">
+      <div class="step-title">차종을 선택하세요</div>
+      <div class="btn-grid" id="vehicleGrid"></div>
+    </div>
+  </div>
+
+  <div class="step-box" id="step3Box">
+    <div class="step-header">
+      <div class="step-header-left">
+        <span class="step-label" id="step3Label">3. 주행거리 (km)</span>
+      </div>
+    </div>
+    <div class="step-body">
+      <input type="number" id="distance" min="0" step="1" placeholder="주행거리를 입력하세요 (km)" value="0">
+      <button id="calcBtn">계산하기</button>
+    </div>
+  </div>
+
+  <div class="result-card hidden" id="resultCard">
+    <table class="info-table">
+      <tr><td>차종</td><td id="rName">-</td></tr>
+      <tr><td>분류</td><td id="rCategory">-</td></tr>
+      <tr><td>정원</td><td id="rCapacity">-</td></tr>
+      <tr id="rowT1"><td>1-50km</td><td id="rT1">-</td></tr>
+      <tr id="rowT2"><td>51-100km</td><td id="rT2">-</td></tr>
+      <tr id="rowT3"><td>101km~</td><td id="rT3">-</td></tr>
+    </table>
+    <div class="tier-note hidden" id="selfFuelNote">자체주유 차량이라 주행요금이 부과되지 않아요 (본인 주유 부담)</div>
+    <div class="total-block">
+      <div class="label">총 주행요금</div>
+      <div class="value" id="rTotal">₩0</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const vehicles = [
+  {name:"레이", category:"경형", capacity:"5인승", r1:250, r2:240, r3:220},
+  {name:"모닝", category:"경형", capacity:"5인승", r1:200, r2:190, r3:170},
+  {name:"스파크", category:"경형", capacity:"5인승", r1:220, r2:210, r3:190},
+  {name:"아반떼", category:"준중형", capacity:"5인승", r1:220, r2:210, r3:190},
+  {name:"아반떼 하이브리드", category:"준중형", capacity:"5인승", r1:160, r2:150, r3:130},
+  {name:"K3", category:"준중형", capacity:"5인승", r1:230, r2:220, r3:200},
+  {name:"쏘나타", category:"중형", capacity:"5인승", r1:230, r2:220, r3:200},
+  {name:"K5", category:"중형", capacity:"5인승", r1:230, r2:220, r3:200},
+  {name:"쏘나타 하이브리드", category:"중형", capacity:"5인승", r1:160, r2:150, r3:130},
+  {name:"K5 하이브리드", category:"중형", capacity:"5인승", r1:160, r2:150, r3:130},
+  {name:"그렌저 하이브리드(IG후기)", category:"준대형", capacity:"5인승", r1:170, r2:160, r3:140},
+  {name:"그렌저 하이브리드(GN7)", category:"준대형", capacity:"5인승", r1:150, r2:140, r3:120},
+  {name:"그렌저", category:"준대형", capacity:"5인승", r1:220, r2:210, r3:190},
+  {name:"K8", category:"준대형", capacity:"5인승", r1:210, r2:200, r3:180},
+  {name:"G80", category:"준대형", capacity:"5인승", r1:230, r2:220, r3:200},
+  {name:"G90", category:"대형", capacity:"5인승", r1:290, r2:280, r3:260},
+  {name:"K9", category:"대형", capacity:"5인승", r1:"자체주유", r2:"자체주유", r3:"자체주유"},
+  {name:"셀토스", category:"SUV", capacity:"5인승", r1:240, r2:230, r3:210},
+  {name:"토레스 하이브리드", category:"SUV", capacity:"5인승", r1:180, r2:170, r3:150},
+  {name:"투싼 디젤", category:"SUV", capacity:"5인승", r1:210, r2:200, r3:180},
+  {name:"캐스퍼", category:"SUV", capacity:"5인승", r1:240, r2:230, r3:210},
+  {name:"코나", category:"SUV", capacity:"5인승", r1:220, r2:210, r3:190},
+  {name:"베뉴", category:"SUV", capacity:"5인승", r1:210, r2:200, r3:180},
+  {name:"GV80", category:"SUV", capacity:"5인승", r1:290, r2:280, r3:260},
+  {name:"BMW 240i", category:"수입", capacity:"5인승", r1:260, r2:250, r3:230},
+  {name:"카니발 디젤", category:"SV", capacity:"5인승", r1:210, r2:200, r3:180},
+  {name:"스타리아 디젤", category:"SV", capacity:"5인승", r1:250, r2:240, r3:220},
+  {name:"레이", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"레이 밴", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"아토3", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"니로", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"Ev3", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"Ev5", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"Ev6", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"아이오닉5", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"아이오닉6", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"GV60", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+  {name:"G80", category:"EV", capacity:"5인승", r1:50, r2:50, r3:50},
+];
+
+const categoryOrder = ["경형","준중형","중형","준대형","대형","SUV","수입","SV","EV"];
+const categories = categoryOrder.filter(c => vehicles.some(v => v.category === c));
+
+let state = { category:null, vehicleName:null, step:1 };
+
+const step1Box = document.getElementById('step1Box');
+const step2Box = document.getElementById('step2Box');
+const step3Box = document.getElementById('step3Box');
+const step1Value = document.getElementById('step1Value');
+const step2Value = document.getElementById('step2Value');
+const categoryGrid = document.getElementById('categoryGrid');
+const vehicleGrid = document.getElementById('vehicleGrid');
+const distanceInput = document.getElementById('distance');
+const resultCard = document.getElementById('resultCard');
+
+function won(n){ return '₩' + Math.round(n).toLocaleString('ko-KR'); }
+
+function renderCategoryGrid(){
+  categoryGrid.innerHTML = categories.map(c => `
+    <div class="chip${state.category===c ? ' selected':''}" data-cat="${c}">${c}</div>
+  `).join('');
+  categoryGrid.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', () => {
+      state.category = el.dataset.cat;
+      state.vehicleName = null;
+      state.step = 2;
+      updateUI();
+    });
+  });
+}
+
+function renderVehicleGrid(){
+  const list = vehicles.filter(v => v.category === state.category);
+  vehicleGrid.innerHTML = list.map(v => `
+    <div class="veh-btn${state.vehicleName===v.name ? ' selected':''}" data-name="${v.name}">${v.name}</div>
+  `).join('');
+  vehicleGrid.querySelectorAll('.veh-btn').forEach(el => {
+    el.addEventListener('click', () => {
+      state.vehicleName = el.dataset.name;
+      state.step = 3;
+      updateUI();
+      render();
+    });
+  });
+}
+
+function updateUI(){
+  step1Value.textContent = state.category || '';
+  step2Value.textContent = state.vehicleName || '';
+
+  step1Box.classList.toggle('active', state.step === 1);
+  step1Box.classList.toggle('collapsed', state.step !== 1 && !!state.category);
+
+  step2Box.classList.toggle('active', state.step === 2);
+  step2Box.classList.toggle('collapsed', state.step === 3 && !!state.vehicleName);
+  step2Box.style.display = state.category ? '' : 'none';
+
+  step3Box.classList.toggle('active', state.step === 3);
+  step3Box.style.display = state.vehicleName ? '' : 'none';
+
+  if(state.category) renderVehicleGrid();
+
+  resultCard.classList.toggle('hidden', !state.vehicleName);
+}
+
+document.getElementById('step1Edit').addEventListener('click', () => { state.step = 1; updateUI(); });
+document.getElementById('step2Edit').addEventListener('click', () => { state.step = 2; updateUI(); });
+
+function getSelectedVehicle(){
+  return vehicles.find(v => v.name === state.vehicleName && v.category === state.category);
+}
+
+function calcFee(distance, r1, r2, r3){
+  if(typeof r1 !== 'number') return 0;
+  if(distance <= 0) return 0;
+  let fee = 0;
+  const t1 = Math.min(distance, 50);
+  fee += t1 * r1;
+  if(distance > 50){
+    const t2 = Math.min(distance - 50, 50);
+    fee += t2 * r2;
+  }
+  if(distance > 100){
+    const t3 = distance - 100;
+    fee += t3 * r3;
+  }
+  return fee;
+}
+
+function tierText(r){
+  return typeof r === 'number' ? r.toLocaleString('ko-KR') + '원/km' : r;
+}
+
+function render(){
+  const v = getSelectedVehicle();
+  if(!v) return;
+  const distance = Math.max(0, Number(distanceInput.value) || 0);
+  const isSelfFuel = typeof v.r1 !== 'number';
+  const fee = calcFee(distance, v.r1, v.r2, v.r3);
+
+  document.getElementById('rName').textContent = v.name;
+  document.getElementById('rCategory').textContent = v.category;
+  document.getElementById('rCapacity').textContent = v.capacity;
+  document.getElementById('rT1').textContent = tierText(v.r1);
+  document.getElementById('rT2').textContent = tierText(v.r2);
+  document.getElementById('rT3').textContent = tierText(v.r3);
+
+  ['rowT1','rowT2','rowT3'].forEach(id => {
+    document.getElementById(id).style.display = isSelfFuel ? 'none' : '';
+  });
+  document.getElementById('selfFuelNote').classList.toggle('hidden', !isSelfFuel);
+
+  document.getElementById('rTotal').textContent = won(fee);
+}
+
+distanceInput.addEventListener('input', render);
+document.getElementById('calcBtn').addEventListener('click', render);
+
+renderCategoryGrid();
+updateUI();
+</script>
+</body>
+</html>
